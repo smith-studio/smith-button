@@ -1,5 +1,17 @@
 chrome.action.onClicked.addListener(async (tab) => {
   await chrome.sidePanel.open({ windowId: tab.windowId });
+  
+  const restrictedPages = ['chrome://', 'chrome-extension://', 'edge://', 'about:', 'view-source:'];
+  const isRestricted = restrictedPages.some(prefix => tab.url?.startsWith(prefix));
+  
+  if (isRestricted) {
+    await chrome.storage.local.set({ 
+      recipeStatus: 'error',
+      recipeError: 'Cannot extract content from browser internal pages. Try a regular webpage.' 
+    });
+    return;
+  }
+  
   await chrome.storage.local.set({ recipeStatus: 'loading' });
   
   chrome.tabs.sendMessage(tab.id, { action: 'extractRecipe' }, async (response) => {
@@ -7,7 +19,7 @@ chrome.action.onClicked.addListener(async (tab) => {
       console.error('Error sending message:', chrome.runtime.lastError);
       await chrome.storage.local.set({ 
         recipeStatus: 'error',
-        recipeError: 'Could not connect to page. Try refreshing the page.' 
+        recipeError: 'Could not connect to page. Try refreshing the page or check if the page allows extensions.' 
       });
       return;
     }
