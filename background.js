@@ -15,6 +15,8 @@ chrome.action.onClicked.addListener(async (tab) => {
     if (response) {
       if (response.mode === 'thread') {
         await chrome.storage.local.set({ currentThread: response.thread, recipeStatus: 'thread' });
+      } else if (response.mode === 'article') {
+        await chrome.storage.local.set({ currentArticle: response.article, recipeStatus: 'article' });
       } else {
         await processRecipe(response);
       }

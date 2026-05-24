@@ -112,11 +112,38 @@
       <div class="studio-credit-footer">By A.I. Smith Studio</div>
     </div>
 
+    <div id="article-card" style="display: none;">
+      <div class="toolbar">
+        <button id="article-copy-btn" class="icon-button" title="Copy Article">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        </button>
+        <button id="article-settings-btn" class="icon-button" title="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m-6-6h6m6 0h-6m-3.5-8.66l3 5.2m3 5.2l3 5.2m-12-10.4l3 5.2m3 5.2l3 5.2"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="article-header">
+        <div class="article-badge">Clean Reader</div>
+        <h1 id="article-title" class="recipe-title"></h1>
+        <div id="article-meta" class="article-meta"></div>
+      </div>
+
+      <div class="article-content" id="article-content"></div>
+
+      <div class="studio-credit-footer">By A.I. Smith Studio</div>
+    </div>
+
     <div id="welcome-state" class="state-container">
-      <div class="icon-large">👨‍🍳</div>
+      <div class="icon-large">�</div>
       <h2>Welcome to Smith</h2>
-      <p>Navigate to any recipe page or Reddit thread and click the Smith Button.</p>
-      <p class="note">Works on recipes and Reddit threads — no more scrolling!</p>
+      <p>Click the Smith button on any webpage to extract clean, readable content.</p>
+      <p class="note">Works on recipes, Reddit threads, news articles, and more — no ads, no popups, no noise!</p>
       <p class="studio-credit">By A.I. Smith Studio</p>
     </div>
   </div>

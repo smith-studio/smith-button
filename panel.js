@@ -5,7 +5,8 @@ const states = {
   noRecipe: document.getElementById('no-recipe-state'),
   error: document.getElementById('error-state'),
   recipe: document.getElementById('recipe-card'),
-  thread: document.getElementById('thread-card')
+  thread: document.getElementById('thread-card'),
+  article: document.getElementById('article-card')
 };
 
 function showState(stateName) {
@@ -186,6 +187,52 @@ function formatThreadForCopy(thread) {
   return text;
 }
 
+function renderArticle(article) {
+  document.getElementById('article-title').textContent = article.title;
+
+  const meta = document.getElementById('article-meta');
+  meta.innerHTML = '';
+  if (article.siteName) {
+    meta.innerHTML += `<div class="meta-item"><span class="meta-label">Source:</span><span>${article.siteName}</span></div>`;
+  }
+  if (article.author) {
+    meta.innerHTML += `<div class="meta-item"><span class="meta-label">Author:</span><span>${article.author}</span></div>`;
+  }
+  if (article.date) {
+    const dateStr = new Date(article.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    meta.innerHTML += `<div class="meta-item"><span class="meta-label">Published:</span><span>${dateStr}</span></div>`;
+  }
+
+  const contentEl = document.getElementById('article-content');
+  contentEl.innerHTML = '';
+  
+  const paragraphs = article.content.split('\n\n');
+  paragraphs.forEach(p => {
+    if (p.trim()) {
+      const pEl = document.createElement('p');
+      pEl.className = 'article-paragraph';
+      pEl.textContent = p;
+      contentEl.appendChild(pEl);
+    }
+  });
+
+  showState('article');
+}
+
+function formatArticleForCopy(article) {
+  let text = `ARTICLE\n`;
+  text += `=======\n`;
+  text += `${article.title}\n`;
+  if (article.siteName) text += `Source: ${article.siteName}\n`;
+  if (article.author) text += `Author: ${article.author}\n`;
+  if (article.date) text += `Date: ${new Date(article.date).toLocaleDateString()}\n`;
+  text += `URL: ${article.url}\n\n`;
+  text += `--- CONTENT ---\n\n`;
+  text += article.content;
+  text += `\n\n--- End of article ---\n`;
+  return text;
+}
+
 document.getElementById('print-btn')?.addEventListener('click', () => {
   window.print();
 });
@@ -234,6 +281,27 @@ document.getElementById('thread-settings-btn')?.addEventListener('click', () => 
   chrome.tabs.create({ url: chrome.runtime.getURL('settings.html') });
 });
 
+document.getElementById('article-copy-btn')?.addEventListener('click', async () => {
+  const { currentArticle } = await chrome.storage.local.get('currentArticle');
+  if (currentArticle) {
+    const text = formatArticleForCopy(currentArticle);
+    await navigator.clipboard.writeText(text);
+
+    const btn = document.getElementById('article-copy-btn');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    `;
+    setTimeout(() => { btn.innerHTML = originalHTML; }, 2000);
+  }
+});
+
+document.getElementById('article-settings-btn')?.addEventListener('click', () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL('settings.html') });
+});
+
 document.getElementById('open-settings-btn')?.addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('settings.html') });
 });
@@ -271,6 +339,11 @@ async function handleStatusChange(status) {
       if (currentThread) renderThread(currentThread);
       break;
     }
+    case 'article': {
+      const { currentArticle } = await chrome.storage.local.get('currentArticle');
+      if (currentArticle) renderArticle(currentArticle);
+      break;
+    }
     case 'no_api_key':
       showState('noApiKey');
       break;
@@ -290,10 +363,12 @@ async function handleStatusChange(status) {
 }
 
 async function init() {
-  const { recipeStatus, currentRecipe, currentThread } = await chrome.storage.local.get(['recipeStatus', 'currentRecipe', 'currentThread']);
+  const { recipeStatus, currentRecipe, currentThread, currentArticle } = await chrome.storage.local.get(['recipeStatus', 'currentRecipe', 'currentThread', 'currentArticle']);
   
   if (recipeStatus === 'thread' && currentThread) {
     renderThread(currentThread);
+  } else if (recipeStatus === 'article' && currentArticle) {
+    renderArticle(currentArticle);
   } else if (recipeStatus) {
     await handleStatusChange(recipeStatus);
   } else if (currentRecipe) {

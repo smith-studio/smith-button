@@ -26,16 +26,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         url: url,
         title: title 
       });
-    } else {
-      const pageText = extractPageText();
-      sendResponse({ 
-        mode: 'recipe',
-        success: false,
-        pageText: pageText,
-        url: url,
-        title: title 
-      });
+      return true;
     }
+
+    const article = extractArticle(url, title);
+    if (article && article.content && article.content.length > 200) {
+      sendResponse({ mode: 'article', article, url, title });
+      return true;
+    }
+
+    const pageText = extractPageText();
+    sendResponse({ 
+      mode: 'recipe',
+      success: false,
+      pageText: pageText,
+      url: url,
+      title: title 
+    });
   }
   return true;
 });
@@ -347,6 +354,84 @@ function extractTimeFromInstruction(instruction) {
   const timePattern = /(\d+)\s*(minute|minutes|min|hour|hours|hr|hrs|second|seconds|sec|secs)/i;
   const match = instruction.match(timePattern);
   return match ? match[0] : null;
+}
+
+function extractArticle(url, pageTitle) {
+  const article = {
+    title: pageTitle,
+    author: null,
+    date: null,
+    siteName: null,
+    content: '',
+    url: url
+  };
+
+  const metaAuthor = document.querySelector('meta[name="author"], meta[property="article:author"]');
+  if (metaAuthor) article.author = metaAuthor.content;
+
+  const metaDate = document.querySelector('meta[property="article:published_time"], meta[name="date"], meta[name="publish-date"]');
+  if (metaDate) article.date = metaDate.content;
+
+  const metaSite = document.querySelector('meta[property="og:site_name"], meta[name="application-name"]');
+  if (metaSite) article.siteName = metaSite.content;
+
+  const h1 = document.querySelector('h1');
+  if (h1 && h1.textContent.trim()) article.title = h1.textContent.trim();
+
+  const contentSelectors = [
+    'article',
+    '[role="article"]',
+    'main article',
+    '.article-content',
+    '.post-content',
+    '.entry-content',
+    '.content-body',
+    'main',
+    '#content',
+    '.story-body'
+  ];
+
+  let contentEl = null;
+  for (const selector of contentSelectors) {
+    contentEl = document.querySelector(selector);
+    if (contentEl) break;
+  }
+
+  if (!contentEl) {
+    contentEl = document.body;
+  }
+
+  const clone = contentEl.cloneNode(true);
+
+  const unwantedSelectors = [
+    'script', 'style', 'nav', 'header', 'footer', 'aside',
+    '.comments', '#comments', '.comment-section',
+    '.advertisement', '.ad', '[class*="ad-"]', '[id*="ad-"]',
+    '.social-share', '.share-buttons',
+    '.related-articles', '.recommended',
+    'iframe', 'video', 'audio',
+    '.newsletter-signup', '.subscription',
+    'button', '.button',
+    'form',
+    '[aria-hidden="true"]'
+  ];
+
+  unwantedSelectors.forEach(selector => {
+    clone.querySelectorAll(selector).forEach(el => el.remove());
+  });
+
+  const paragraphs = clone.querySelectorAll('p, h2, h3, h4, blockquote, li');
+  const contentParts = [];
+  paragraphs.forEach(p => {
+    const text = p.textContent.trim();
+    if (text && text.length > 20) {
+      contentParts.push(text);
+    }
+  });
+
+  article.content = contentParts.join('\n\n');
+
+  return article;
 }
 
 function extractPageText() {
