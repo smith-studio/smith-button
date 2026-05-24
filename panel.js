@@ -260,6 +260,49 @@ document.getElementById('settings-btn')?.addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('settings.html') });
 });
 
+document.getElementById('thread-expand-btn')?.addEventListener('click', async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tab && tab.id) {
+    const btn = document.getElementById('thread-expand-btn');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = `<span style="font-size: 12px;">...</span>`;
+    btn.disabled = true;
+    
+    chrome.tabs.sendMessage(tab.id, { action: 'expandComments' }, (response) => {
+      if (chrome.runtime.lastError) {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        return;
+      }
+      
+      if (response && response.expanded > 0) {
+        btn.innerHTML = `<span style="font-size: 12px;">✓ ${response.expanded} wait...</span>`;
+        setTimeout(() => {
+          btn.innerHTML = `<span style="font-size: 12px;">extracting...</span>`;
+          chrome.tabs.sendMessage(tab.id, { action: 'extractRecipe' }, async (res) => {
+            if (!chrome.runtime.lastError && res && res.mode === 'thread') {
+              await chrome.storage.local.set({ currentThread: res.thread, recipeStatus: 'thread' });
+              btn.innerHTML = `<span style="font-size: 12px;">✓ done</span>`;
+            } else {
+              btn.innerHTML = `<span style="font-size: 12px;">✗ error</span>`;
+            }
+            setTimeout(() => {
+              btn.innerHTML = originalHTML;
+              btn.disabled = false;
+            }, 1500);
+          });
+        }, 4000);
+      } else {
+        btn.innerHTML = `<span style="font-size: 12px;">0 new</span>`;
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.disabled = false;
+        }, 2000);
+      }
+    });
+  }
+});
+
 document.getElementById('thread-copy-btn')?.addEventListener('click', async () => {
   const { currentThread } = await chrome.storage.local.get('currentThread');
   if (currentThread) {
@@ -313,7 +356,7 @@ document.getElementById('retry-btn')?.addEventListener('click', async () => {
   if (tab && tab.id) {
     chrome.tabs.sendMessage(tab.id, { action: 'extractRecipe' }, (response) => {
       if (chrome.runtime.lastError) {
-        console.error('Retry error:', chrome.runtime.lastError);
+        showState('error');
       }
     });
   }

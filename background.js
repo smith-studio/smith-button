@@ -13,11 +13,16 @@ chrome.action.onClicked.addListener(async (tab) => {
   }
   
   await chrome.storage.local.set({ recipeStatus: 'loading' });
-  
+
+  try {
+    await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] });
+  } catch (e) {
+    // Already injected or restricted page — proceed anyway
+  }
+
   chrome.tabs.sendMessage(tab.id, { action: 'extractRecipe' }, async (response) => {
     if (chrome.runtime.lastError) {
-      console.error('Error sending message:', chrome.runtime.lastError);
-      await chrome.storage.local.set({ 
+      await chrome.storage.local.set({
         recipeStatus: 'error',
         recipeError: 'Could not connect to page. Try refreshing the page or check if the page allows extensions.' 
       });

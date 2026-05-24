@@ -1,3 +1,6 @@
+if (!window.__smithLoaded) {
+window.__smithLoaded = true;
+
 function isRedditThread() {
   const host = window.location.hostname;
   const path = window.location.pathname;
@@ -6,6 +9,33 @@ function isRedditThread() {
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'expandComments') {
+    const buttons = document.querySelectorAll('button');
+    let count = 0;
+    
+    buttons.forEach(btn => {
+      const text = btn.textContent.toLowerCase();
+      const ariaLabel = btn.getAttribute('aria-label')?.toLowerCase() || '';
+      
+      if (text.includes('more replies') || 
+          text.includes('more comments') || 
+          ariaLabel.includes('more replies') ||
+          ariaLabel.includes('more comments')) {
+        btn.click();
+        count++;
+      }
+    });
+    
+    const oldRedditLinks = document.querySelectorAll('.morecomments a');
+    oldRedditLinks.forEach(link => {
+      link.click();
+      count++;
+    });
+    
+    sendResponse({ expanded: count });
+    return true;
+  }
+  
   if (request.action === 'extractRecipe') {
     const url = window.location.href;
     const title = document.title;
@@ -98,6 +128,52 @@ function extractOP() {
   return { author: 'OP', body: '', score: '' };
 }
 
+const JUNK_TAGS = 'script, style, shreddit-comment, faceplate-tracker, faceplate-number, ' +
+  'faceplate-timeago, button, [role="button"], svg, [hidden], [aria-hidden="true"], noscript, template';
+
+function getCommentBody(commentEl) {
+  // Reddit's RichText content sits in a predictable ID'd container.
+  // Nested shreddit-comment elements can live inside this div (Reddit nests the full
+  // reply tree inside the parent's rtjson div), so we must strip them before extracting.
+  const rtjson = commentEl.querySelector('[id$="-comment-rtjson-content"], [id$="post-rtjson-content"]');
+  if (rtjson) {
+    const clone = rtjson.cloneNode(true);
+    clone.querySelectorAll(JUNK_TAGS).forEach(n => n.remove());
+    const parts = [];
+    clone.querySelectorAll('p, li, blockquote, h1, h2, h3, h4, h5, h6, pre').forEach(node => {
+      const text = node.textContent.trim();
+      if (text) parts.push(text);
+    });
+    if (parts.length > 0) return parts.join('\n\n');
+  }
+
+  // Fallback: .md class (old Reddit / some shreddit layouts)
+  const md = commentEl.querySelector('.md');
+  if (md) {
+    const clone = md.cloneNode(true);
+    clone.querySelectorAll(JUNK_TAGS).forEach(n => n.remove());
+    const text = clone.textContent.trim();
+    if (text) return text;
+  }
+
+  // Last resort: pull from [slot="comment"] with heavy stripping
+  const slot = commentEl.querySelector('[slot="comment"]');
+  if (slot) {
+    const clone = slot.cloneNode(true);
+    clone.querySelectorAll(JUNK_TAGS).forEach(n => n.remove());
+    const parts = [];
+    clone.querySelectorAll('p, li, blockquote').forEach(node => {
+      const text = node.textContent.trim();
+      if (text && text.length > 2 && !/^(Reply|Share|Vote|Award|More|Collapse|•|\d+[hdmwy]( ago)?)$/i.test(text)) {
+        parts.push(text);
+      }
+    });
+    if (parts.length > 0) return parts.join('\n\n');
+  }
+
+  return null;
+}
+
 function extractComments() {
   const comments = [];
 
@@ -105,8 +181,10 @@ function extractComments() {
   if (newReddit.length > 0) {
     newReddit.forEach(el => {
       const depth = parseInt(el.getAttribute('depth') || '0');
-      const authorEl = el.querySelector('[slot="authorName"], a[href*="/user/"]');
-      const bodyEl = el.querySelector('[slot="comment"] p, .md p, [data-testid="comment"] p');
+      
+      // The `author` attribute on shreddit-comment is always a plain string — most reliable.
+      let author = el.getAttribute('author') || '[deleted]';
+      
       const scoreEl = el.querySelector('faceplate-number[slot="upvoteCount"], [id*="vote-count"]');
       const commentId = el.getAttribute('thingid')?.replace('t1_', '') || el.id?.replace('comment-', '') || '';
       const permalinkEl = el.querySelector('a[slot="commentMeta"], a[href*="/comments/"]');
@@ -117,14 +195,12 @@ function extractComments() {
         permalink = `${window.location.origin}${window.location.pathname}${commentId}/`;
       }
 
-      const bodyParts = [];
-      const pEls = el.querySelectorAll('[slot="comment"] p, .md p');
-      pEls.forEach(p => { if (p.textContent.trim()) bodyParts.push(p.textContent.trim()); });
+      const body = getCommentBody(el) || '[deleted]';
 
       comments.push({
         depth,
-        author: authorEl ? authorEl.textContent.trim().replace(/^u\//, '') : '[deleted]',
-        body: bodyParts.join('\n') || (bodyEl ? bodyEl.textContent.trim() : '[deleted]'),
+        author: author,
+        body: body,
         score: scoreEl ? scoreEl.textContent.trim() : '',
         permalink: permalink
       });
@@ -444,4 +520,6 @@ function extractPageText() {
   
   const text = clone.textContent || '';
   return text.replace(/\s+/g, ' ').trim();
+}
+
 }
