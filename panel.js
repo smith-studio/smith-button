@@ -310,7 +310,13 @@ document.getElementById('retry-btn')?.addEventListener('click', async () => {
   showState('loading');
   
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  chrome.tabs.sendMessage(tab.id, { action: 'extractRecipe' });
+  if (tab && tab.id) {
+    chrome.tabs.sendMessage(tab.id, { action: 'extractRecipe' }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Retry error:', chrome.runtime.lastError);
+      }
+    });
+  }
 });
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
@@ -318,8 +324,14 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     if (changes.recipeStatus) {
       handleStatusChange(changes.recipeStatus.newValue);
     }
-    if (changes.currentRecipe) {
+    if (changes.currentRecipe && changes.currentRecipe.newValue) {
       renderRecipe(changes.currentRecipe.newValue);
+    }
+    if (changes.currentThread && changes.currentThread.newValue) {
+      renderThread(changes.currentThread.newValue);
+    }
+    if (changes.currentArticle && changes.currentArticle.newValue) {
+      renderArticle(changes.currentArticle.newValue);
     }
   }
 });
