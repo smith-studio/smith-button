@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smith Button - Recipe</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <div id="app">
+    <div id="loading-state" class="state-container" style="display: none;">
+      <div class="loading-spinner"></div>
+      <p id="loading-text">Extracting...</p>
+    </div>
+
+    <div id="no-api-key-state" class="state-container" style="display: none;">
+      <div class="icon-large">🔑</div>
+      <h2>API Key Required</h2>
+      <p>To extract recipes from pages without structured data, you'll need an OpenAI API key.</p>
+      <p class="note">Many recipe sites include structured data, so the API key is only needed as a fallback.</p>
+      <button id="open-settings-btn" class="primary-button">Set Up API Key</button>
+    </div>
+
+    <div id="no-recipe-state" class="state-container" style="display: none;">
+      <div class="icon-large">🔍</div>
+      <h2>No Recipe Found</h2>
+      <p>We couldn't find a recipe on this page. Try visiting a recipe blog or cooking website.</p>
+    </div>
+
+    <div id="error-state" class="state-container" style="display: none;">
+      <div class="icon-large">⚠️</div>
+      <h2>Something Went Wrong</h2>
+      <p id="error-message">An error occurred while extracting the recipe.</p>
+      <button id="retry-btn" class="primary-button">Try Again</button>
+    </div>
+
+    <div id="recipe-card" style="display: none;">
+      <div class="toolbar">
+        <button id="print-btn" class="icon-button" title="Print Recipe">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+        </button>
+        <button id="copy-btn" class="icon-button" title="Copy Recipe">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        </button>
+        <button id="settings-btn" class="icon-button" title="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m-6-6h6m6 0h-6m-3.5-8.66l3 5.2m3 5.2l3 5.2m-12-10.4l3 5.2m3 5.2l3 5.2"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="recipe-header">
+        <h1 id="recipe-title" class="recipe-title"></h1>
+        <div id="recipe-meta" class="recipe-meta"></div>
+      </div>
+
+      <div class="recipe-section">
+        <h2 class="section-title">Ingredients</h2>
+        <ul id="ingredients-list" class="ingredients-list"></ul>
+      </div>
+
+      <div class="recipe-section">
+        <h2 class="section-title">Instructions</h2>
+        <div id="steps-list" class="steps-list"></div>
+      </div>
+
+      <div id="recipe-footer" class="recipe-footer"></div>
+      
+      <div class="studio-credit-footer">By A.I. Smith Studio</div>
+    </div>
+
+    <div id="thread-card" style="display: none;">
+      <div class="toolbar">
+        <button id="thread-copy-btn" class="icon-button" title="Copy Thread for LLM">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        </button>
+        <button id="thread-settings-btn" class="icon-button" title="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m-6-6h6m6 0h-6m-3.5-8.66l3 5.2m3 5.2l3 5.2m-12-10.4l3 5.2m3 5.2l3 5.2"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="thread-header">
+        <div class="thread-badge">Reddit Thread</div>
+        <h1 id="thread-title" class="recipe-title"></h1>
+        <div id="thread-meta" class="thread-meta"></div>
+      </div>
+
+      <div class="recipe-section">
+        <h2 class="section-title">Original Post</h2>
+        <div id="thread-op" class="thread-op"></div>
+      </div>
+
+      <div class="recipe-section">
+        <h2 class="section-title">Comments <span id="thread-comment-count" class="comment-count"></span></h2>
+        <div id="thread-comments" class="thread-comments"></div>
+      </div>
+
+      <div class="studio-credit-footer">By A.I. Smith Studio</div>
+    </div>
+
+    <div id="welcome-state" class="state-container">
+      <div class="icon-large">👨‍🍳</div>
+      <h2>Welcome to Smith</h2>
+      <p>Navigate to any recipe page or Reddit thread and click the Smith Button.</p>
+      <p class="note">Works on recipes and Reddit threads — no more scrolling!</p>
+      <p class="studio-credit">By A.I. Smith Studio</p>
+    </div>
+  </div>
+
+  <script src="utils/printer.js"></script>
+  <script src="panel.js"></script>
+</body>
+</html>

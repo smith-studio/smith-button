@@ -1,0 +1,411 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #FFF8F0;
+  color: #2D2A26;
+  line-height: 1.6;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.state-container {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.icon-large {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.state-container h2 {
+  font-size: 24px;
+  margin-bottom: 12px;
+  color: #2D2A26;
+}
+
+.state-container p {
+  font-size: 16px;
+  color: #5A5550;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.state-container .note {
+  font-size: 14px;
+  color: #8A8580;
+  font-style: italic;
+}
+
+.primary-button {
+  background: #E86C00;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background 0.2s;
+}
+
+.primary-button:hover {
+  background: #D06000;
+}
+
+.primary-button:active {
+  background: #B85500;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #F5E6D3;
+  border-top-color: #E86C00;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.icon-button {
+  background: white;
+  border: 1px solid #E0D5C7;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  color: #5A5550;
+}
+
+.icon-button:hover {
+  background: #FFF8F0;
+  border-color: #E86C00;
+  color: #E86C00;
+}
+
+.icon-button:active {
+  background: #F5E6D3;
+}
+
+.recipe-header {
+  margin-bottom: 30px;
+}
+
+.recipe-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #2D2A26;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.recipe-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.meta-item {
+  background: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  color: #5A5550;
+  border: 1px solid #E0D5C7;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-label {
+  font-weight: 600;
+  color: #E86C00;
+}
+
+.recipe-section {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(45, 42, 38, 0.08);
+  border: 1px solid #E0D5C7;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2D2A26;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #E86C00;
+}
+
+.ingredients-list {
+  list-style: none;
+}
+
+.ingredient-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #F5E6D3;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.ingredient-item:last-child {
+  border-bottom: none;
+}
+
+.ingredient-amount {
+  font-weight: 700;
+  color: #E86C00;
+  margin-right: 4px;
+}
+
+.ingredient-unit {
+  margin-right: 4px;
+}
+
+.ingredient-item-name {
+  color: #2D2A26;
+}
+
+.ingredient-note {
+  color: #8A8580;
+  font-style: italic;
+  font-size: 14px;
+  margin-left: 4px;
+}
+
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.step-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.step-number {
+  background: #E86C00;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.step-content {
+  flex: 1;
+  padding-top: 4px;
+}
+
+.step-instruction {
+  font-size: 16px;
+  color: #2D2A26;
+  line-height: 1.6;
+}
+
+.step-time {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: #FFF8F0;
+  border: 1px solid #E0D5C7;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #E86C00;
+  font-weight: 600;
+}
+
+.recipe-footer {
+  margin-top: 30px;
+  padding-top: 16px;
+  border-top: 1px solid #E0D5C7;
+  font-size: 14px;
+  color: #8A8580;
+}
+
+.recipe-footer a {
+  color: #E86C00;
+  text-decoration: none;
+}
+
+.recipe-footer a:hover {
+  text-decoration: underline;
+}
+
+.studio-credit {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #8A8580;
+  font-style: italic;
+}
+
+.studio-credit-footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #E0D5C7;
+  text-align: center;
+  font-size: 13px;
+  color: #8A8580;
+  font-style: italic;
+}
+
+.thread-header {
+  margin-bottom: 24px;
+}
+
+.thread-badge {
+  display: inline-block;
+  background: #FF4500;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.thread-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.comment-count {
+  font-size: 14px;
+  font-weight: 400;
+  color: #8A8580;
+}
+
+.thread-op-block {
+  padding: 12px 0;
+}
+
+.thread-op-block .comment-body {
+  font-size: 15px;
+  color: #2D2A26;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.thread-comments {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.comment-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: white;
+  border-left: 2px solid #E0D5C7;
+  margin-bottom: 6px;
+}
+
+.comment-top-level {
+  border-left: 3px solid #E86C00;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.comment-author {
+  font-size: 13px;
+  font-weight: 700;
+  color: #E86C00;
+}
+
+.op-author {
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.comment-score {
+  font-size: 12px;
+  color: #8A8580;
+}
+
+.comment-body {
+  font-size: 14px;
+  color: #2D2A26;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media print {
+  body {
+    margin: 0;
+    padding: 20px;
+    background: white;
+  }
+  
+  .toolbar,
+  .icon-button {
+    display: none !important;
+  }
+  
+  .recipe-section {
+    box-shadow: none;
+    border: none;
+    page-break-inside: avoid;
+  }
+  
+  .recipe-title {
+    font-size: 28pt;
+  }
+  
+  .section-title {
+    font-size: 16pt;
+  }
+  
+  .ingredient-item,
+  .step-instruction {
+    font-size: 12pt;
+  }
+  
+  .meta-item {
+    border: 1px solid #000;
+  }
+}

@@ -1,0 +1,12 @@
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+*.zip
+.vscode/
+generate_icons.py
+create-icons.html
+.env
+.env.local
+*.key
+*.pem

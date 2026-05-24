@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smith Button - Settings</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>⚙️ Smith Settings</h1>
+      <p class="subtitle">Configure your recipe extraction preferences</p>
+    </header>
+
+    <div class="card">
+      <h2>OpenAI API Key</h2>
+      <p class="description">
+        Your API key is used to extract recipes from pages that don't have structured data. 
+        Many recipe sites include structured data, so the API key is only needed as a fallback.
+      </p>
+      <p class="description">
+        <strong>Your key is stored securely</strong> in Chrome's sync storage and never leaves your browser except to make API calls to OpenAI.
+      </p>
+
+      <div class="form-group">
+        <label for="api-key-input">API Key</label>
+        <div class="input-group">
+          <input 
+            type="password" 
+            id="api-key-input" 
+            placeholder="sk-..." 
+            autocomplete="off"
+          >
+          <button id="toggle-visibility-btn" class="icon-button" title="Show/Hide">
+            <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg id="eye-off-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+        <p class="help-text">
+          Don't have an API key? <a href="https://platform.openai.com/api-keys" target="_blank">Get one from OpenAI</a>
+        </p>
+      </div>
+
+      <div class="button-group">
+        <button id="save-btn" class="primary-button">Save API Key</button>
+        <button id="clear-btn" class="secondary-button">Clear Key</button>
+      </div>
+
+      <div id="success-message" class="message success" style="display: none;">
+        ✓ API key saved successfully!
+      </div>
+      <div id="error-message" class="message error" style="display: none;">
+        ⚠ Please enter a valid API key
+      </div>
+    </div>
+
+    <div class="card info-card">
+      <h3>💡 How It Works</h3>
+      <ul class="info-list">
+        <li><strong>Step 1:</strong> Click the Smith Button on any recipe page</li>
+        <li><strong>Step 2:</strong> The extension first checks for structured recipe data (JSON-LD)</li>
+        <li><strong>Step 3:</strong> If no structured data is found, it uses the OpenAI API to extract the recipe</li>
+        <li><strong>Step 4:</strong> Your clean recipe card appears in the side panel</li>
+      </ul>
+    </div>
+
+    <div class="card info-card">
+      <h3>🔒 Privacy & Security</h3>
+      <ul class="info-list">
+        <li>Your API key is stored locally in your browser using Chrome's secure storage</li>
+        <li>The key is only sent to OpenAI's API when extracting recipes</li>
+        <li>No recipe data or personal information is stored on external servers</li>
+        <li>You can clear your API key at any time</li>
+      </ul>
+    </div>
+
+    <footer class="footer">
+      <p>By A.I. Smith Studio</p>
+    </footer>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>
