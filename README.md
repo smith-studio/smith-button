@@ -1,6 +1,8 @@
-# Smith - Content Extraction Extension
+# Smith - Reddit Thread Extractor for LLM Analysis
 
-Extract clean, readable content from any webpage. One click — no ads, no popups, no tracking code, no noise.
+Extract full Reddit threads (OP + all comments) and format them for ChatGPT/Claude analysis. No more broken "read this link" requests.
+
+Also extracts recipes and articles.
 
 ## Features
 
