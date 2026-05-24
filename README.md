@@ -1,26 +1,37 @@
 # Smith - Content Extraction Extension
 
-Extract recipes and Reddit threads into clean, structured formats. One click — no scrolling through blog stories or messy comment sections.
+Extract clean, readable content from any webpage. One click — no ads, no popups, no tracking code, no noise.
 
 ## Features
 
 ### Recipe Extraction
 - **One-Click Extraction**: Click the Smith toolbar icon on any recipe page
-- **Smart Detection**: Automatically detects JSON-LD structured recipe data for instant, free extraction
-- **LLM Fallback**: Uses GPT-4o-mini to extract recipes from pages without structured data
+- **Smart Detection**: Automatically detects JSON-LD structured recipe data for instant, free extraction (no API needed!)
+- **Multi-Provider AI Fallback**: Choose from OpenAI, Claude, Gemini, or Groq for pages without structured data
 - **Beautiful UI**: Warm, kitchen-friendly design with clean typography and intuitive layout
 - **Print & Copy**: Print-optimized layout and one-click copy to clipboard
 
 ### Reddit Thread Extraction
 - **Auto-Detection**: Automatically detects Reddit threads and switches to thread mode
-- **Complete Capture**: Extracts OP post + all comments with proper hierarchy
+- **Complete Capture**: Extracts OP post + all comments with proper hierarchy (no API needed!)
+- **Clean Text**: Filters out all Reddit tracking code (`SML.load()`), UI buttons, and junk
+- **Expand All Comments**: Built-in button to expand collapsed comments before extraction
 - **LLM-Ready Format**: Copy button formats thread as clean plain text, perfect for pasting into ChatGPT, Claude, or any LLM
 - **Nested Comments**: Preserves reply structure with indentation (up to 5 levels deep)
+- **Comment Permalinks**: Each comment includes a direct link for easy reference
 - **Works on All Reddit Versions**: Supports new Reddit, old Reddit, and all layout variations
 
+### Generic Article Extraction (Clean Reader)
+- **Universal Content Extraction**: Works on news sites, blogs, documentation, and more
+- **Ad & Popup Removal**: Strips away ads, newsletter popups, and other distractions
+- **Clean Formatting**: Extracts title, author, date, and main content
+- **Fallback Mode**: If not a recipe or Reddit thread, automatically tries generic extraction
+
 ### General
-- **Privacy-First**: API key stored locally, no external data collection
-- **Smart Routing**: Same button works for both recipes and Reddit — detects content type automatically
+- **Privacy-First**: API keys stored locally in your browser, no external data collection
+- **Multi-Provider AI**: Choose from OpenAI, Claude (Anthropic), Gemini (Google), or Groq
+- **Smart Routing**: Same button works for recipes, Reddit, and articles — detects content type automatically
+- **No API Required for Most Use Cases**: Reddit and most recipes work without any API key!
 
 ## Installation
 
@@ -43,12 +54,20 @@ The extension needs PNG icons. To generate them:
 
 ## Setup
 
+### Optional: Configure AI Provider (for recipe fallback only)
+
+**Note**: Reddit extraction and most recipe sites work without any API key! You only need this for recipe sites without structured data.
+
 1. After installing, click the Smith Button icon in your toolbar
-2. If you see "API Key Required", click "Set Up API Key"
-3. Get an API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+2. If you want AI fallback support, click "Set Up API Key" in settings
+3. Choose your preferred AI provider:
+   - **OpenAI**: [Get API key](https://platform.openai.com/api-keys) (GPT-4o-mini)
+   - **Claude**: [Get API key](https://console.anthropic.com/settings/keys) (Claude 3.5 Sonnet)
+   - **Gemini**: [Get API key](https://aistudio.google.com/app/apikey) (Gemini 1.5 Flash)
+   - **Groq**: [Get API key](https://console.groq.com/keys) (Llama 3.3 70B - fastest)
 4. Paste your key and click "Save API Key"
 
-**Note**: Many recipe sites use structured data, so you may not need the API key for most recipes. It's only used as a fallback.
+**You can skip this entirely if you only want Reddit extraction or recipe sites with structured data!**
 
 ## Usage
 
@@ -78,22 +97,31 @@ The extension needs PNG icons. To generate them:
 ## How It Works
 
 ### Recipe Mode
-1. **JSON-LD First**: The extension first checks for structured recipe data (JSON-LD with `@type: Recipe`)
-2. **LLM Fallback**: If no structured data is found, it sends the page content to GPT-4o-mini for extraction
+1. **JSON-LD First**: The extension first checks for structured recipe data (JSON-LD with `@type: Recipe`) - no API needed!
+2. **AI Fallback (Optional)**: If no structured data is found and you have an API key configured, it uses your chosen AI provider (OpenAI, Claude, Gemini, or Groq) for extraction
 3. **Clean Display**: Recipe is normalized and displayed in a beautiful, standardized format
 
 ### Reddit Thread Mode
 1. **Auto-Detection**: Checks if the URL matches `reddit.com/r/.../comments/...`
-2. **DOM Extraction**: Parses the page DOM to extract OP post, comments, authors, scores, and reply hierarchy
-3. **Multi-Layout Support**: Works with new Reddit web components, legacy React divs, and old Reddit HTML
-4. **Structured Output**: Displays in clean hierarchy or copies as indented plain text for LLM input
+2. **DOM Extraction**: Parses the page DOM to extract OP post, comments, authors, scores, and reply hierarchy - no API needed!
+3. **Clean Filtering**: Removes Reddit tracking code (`SML.load()`), UI buttons, timestamps, and other junk
+4. **Multi-Layout Support**: Works with new Reddit web components, legacy React divs, and old Reddit HTML
+5. **Structured Output**: Displays in clean hierarchy or copies as indented plain text for LLM input
+
+### Generic Article Mode (Clean Reader)
+1. **Fallback Detection**: If not a recipe or Reddit thread, tries generic article extraction
+2. **Content Targeting**: Looks for `<article>` tags, main content areas, and common article structures
+3. **Noise Removal**: Strips ads, popups, sidebars, navigation, and other distractions
+4. **Metadata Extraction**: Pulls title, author, date, and site name when available
 
 ## Privacy & Security
 
-- Your API key is stored in Chrome's sync storage (encrypted and synced across your devices)
-- The key is only sent to OpenAI's API when extracting recipes
-- No recipe data or browsing history is collected or stored externally
-- All processing happens locally in your browser
+- Your API keys are stored in Chrome's sync storage (encrypted and synced across your devices)
+- Keys are only sent to your chosen AI provider (OpenAI, Claude, Gemini, or Groq) when needed for recipe extraction fallback
+- **Reddit extraction requires no API calls** - all processing is local DOM parsing
+- No data or browsing history is collected or stored externally
+- All extraction happens locally in your browser
+- Open source - audit the code yourself!
 
 ## File Structure
 
@@ -227,18 +255,20 @@ Top-level comment...
 ## Roadmap
 
 **V1 (Current)**
-- ✅ Recipe extraction (JSON-LD + LLM fallback)
-- ✅ Reddit thread extraction
+- ✅ Recipe extraction (JSON-LD + multi-provider AI fallback)
+- ✅ Reddit thread extraction with comment expansion
+- ✅ Generic article extraction (Clean Reader mode)
+- ✅ Multi-provider AI support (OpenAI, Claude, Gemini, Groq)
 - ✅ Auto-detection and smart routing
 
 **V2+ (Future)**
-- Allergy/ingredient checking module
 - Recipe saving and favorites
 - Recipe scaling and modification
-- Sharing features
-- Support for other content types (legal documents, articles, etc.)
 - HackerNews thread extraction
 - Twitter/X thread extraction
+- YouTube transcript extraction
+- PDF content extraction
+- Legal document parsing
 
 ## About
 
@@ -246,4 +276,12 @@ Top-level comment...
 
 ## License
 
-Copyright © 2026 A.I. Smith Studio. All rights reserved.
+MIT License
+
+Copyright © 2026 A.I. Smith Studio
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
