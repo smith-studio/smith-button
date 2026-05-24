@@ -54,14 +54,19 @@ async function processRecipe(response) {
       return;
     }
     
-    const { apiKey } = await chrome.storage.sync.get('apiKey');
+    // Get AI provider and corresponding API key
+    const { aiProvider } = await chrome.storage.sync.get('aiProvider');
+    const provider = aiProvider || 'openai';
+    const storageKey = `${provider}Key`;
+    const data = await chrome.storage.sync.get(storageKey);
+    const apiKey = data[storageKey];
     
     if (!apiKey) {
       await chrome.storage.local.set({ recipeStatus: 'no_api_key' });
       return;
     }
     
-    const recipe = await extractRecipeWithLLM(response.pageText, apiKey);
+    const recipe = await extractRecipeWithLLM(response.pageText, provider, apiKey);
     
     if (recipe.error === 'no_recipe_found') {
       await chrome.storage.local.set({ recipeStatus: 'no_recipe' });
@@ -82,7 +87,120 @@ async function processRecipe(response) {
   }
 }
 
-async function extractRecipeWithLLM(pageText, apiKey) {
+async function callOpenAI(prompt, apiKey) {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.1,
+      max_tokens: 2000
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || 'API request failed');
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content.trim();
+}
+
+async function callClaude(prompt, apiKey) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || 'API request failed');
+  }
+
+  const data = await response.json();
+  return data.content[0].text.trim();
+}
+
+async function callGemini(prompt, apiKey) {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      contents: [{
+        parts: [{ text: prompt }]
+      }],
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 2000
+      }
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || 'API request failed');
+  }
+
+  const data = await response.json();
+  return data.candidates[0].content.parts[0].text.trim();
+}
+
+async function callGroq(prompt, apiKey) {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.1,
+      max_tokens: 2000
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || 'API request failed');
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content.trim();
+}
+
+async function callAI(prompt, provider, apiKey) {
+  switch (provider) {
+    case 'openai':
+      return await callOpenAI(prompt, apiKey);
+    case 'claude':
+      return await callClaude(prompt, apiKey);
+    case 'gemini':
+      return await callGemini(prompt, apiKey);
+    case 'groq':
+      return await callGroq(prompt, apiKey);
+    default:
+      throw new Error('Unknown AI provider');
+  }
+}
+
+async function extractRecipeWithLLM(pageText, provider, apiKey) {
   const prompt = `You are a recipe extraction engine. Extract the recipe from the following webpage text into a JSON object.
 
 Rules:
@@ -109,29 +227,7 @@ Return this exact JSON schema:
 Webpage text:
 ${pageText.substring(0, 8000)}`;
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.1,
-      max_tokens: 2000
-    })
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error?.message || 'API request failed');
-  }
-
-  const data = await response.json();
-  const content = data.choices[0].message.content.trim();
+  const content = await callAI(prompt, provider, apiKey);
   
   let jsonContent = content;
   if (content.startsWith('```json')) {

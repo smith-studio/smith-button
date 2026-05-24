@@ -79,6 +79,29 @@ body {
   gap: 8px;
 }
 
+.provider-select {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 15px;
+  border: 2px solid #E0D5C7;
+  border-radius: 8px;
+  background: #FFF8F0;
+  color: #2D2A26;
+  transition: border-color 0.2s;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.provider-select:focus {
+  outline: none;
+  border-color: #E86C00;
+  background: white;
+}
+
+.provider-select:hover {
+  border-color: #E86C00;
+}
+
 .input-group input {
   flex: 1;
   padding: 12px 16px;

@@ -14,14 +14,24 @@
     </header>
 
     <div class="card">
-      <h2>OpenAI API Key</h2>
+      <h2>AI Provider Settings</h2>
       <p class="description">
-        Your API key is used to extract recipes from pages that don't have structured data. 
-        Many recipe sites include structured data, so the API key is only needed as a fallback.
+        Your API key is used to extract content from pages that don't have structured data. 
+        Choose your preferred AI provider and enter your API key.
       </p>
       <p class="description">
-        <strong>Your key is stored securely</strong> in Chrome's sync storage and never leaves your browser except to make API calls to OpenAI.
+        <strong>Your keys are stored securely</strong> in Chrome's sync storage and never leave your browser except to make API calls to your chosen provider.
       </p>
+
+      <div class="form-group">
+        <label for="provider-select">AI Provider</label>
+        <select id="provider-select" class="provider-select">
+          <option value="openai">OpenAI (GPT-4, GPT-3.5)</option>
+          <option value="claude">Anthropic (Claude)</option>
+          <option value="gemini">Google (Gemini)</option>
+          <option value="groq">Groq (Fast Inference)</option>
+        </select>
+      </div>
 
       <div class="form-group">
         <label for="api-key-input">API Key</label>
@@ -43,8 +53,8 @@
             </svg>
           </button>
         </div>
-        <p class="help-text">
-          Don't have an API key? <a href="https://platform.openai.com/api-keys" target="_blank">Get one from OpenAI</a>
+        <p class="help-text" id="api-help-text">
+          Don't have an API key? <a href="https://platform.openai.com/api-keys" target="_blank" id="api-link">Get one from OpenAI</a>
         </p>
       </div>
 
