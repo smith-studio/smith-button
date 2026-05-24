@@ -101,6 +101,14 @@ function extractComments() {
       const authorEl = el.querySelector('[slot="authorName"], a[href*="/user/"]');
       const bodyEl = el.querySelector('[slot="comment"] p, .md p, [data-testid="comment"] p');
       const scoreEl = el.querySelector('faceplate-number[slot="upvoteCount"], [id*="vote-count"]');
+      const commentId = el.getAttribute('thingid')?.replace('t1_', '') || el.id?.replace('comment-', '') || '';
+      const permalinkEl = el.querySelector('a[slot="commentMeta"], a[href*="/comments/"]');
+      let permalink = '';
+      if (permalinkEl && permalinkEl.href) {
+        permalink = permalinkEl.href;
+      } else if (commentId) {
+        permalink = `${window.location.origin}${window.location.pathname}${commentId}/`;
+      }
 
       const bodyParts = [];
       const pEls = el.querySelectorAll('[slot="comment"] p, .md p');
@@ -110,7 +118,8 @@ function extractComments() {
         depth,
         author: authorEl ? authorEl.textContent.trim().replace(/^u\//, '') : '[deleted]',
         body: bodyParts.join('\n') || (bodyEl ? bodyEl.textContent.trim() : '[deleted]'),
-        score: scoreEl ? scoreEl.textContent.trim() : ''
+        score: scoreEl ? scoreEl.textContent.trim() : '',
+        permalink: permalink
       });
     });
     return comments;
@@ -123,11 +132,14 @@ function extractComments() {
       const authorEl = el.querySelector('.author');
       const bodyEl = el.querySelector('.usertext-body .md');
       const scoreEl = el.querySelector('.score.unvoted, .score.likes, .score.dislikes');
+      const permalinkEl = el.querySelector('a.bylink');
+      const permalink = permalinkEl ? `${window.location.origin}${permalinkEl.getAttribute('href')}` : '';
       comments.push({
         depth: parseInt(el.getAttribute('data-depth') || '0'),
         author: authorEl ? authorEl.textContent.trim() : '[deleted]',
         body: bodyEl ? bodyEl.textContent.trim() : '[deleted]',
-        score: scoreEl ? scoreEl.getAttribute('title') || scoreEl.textContent.trim() : ''
+        score: scoreEl ? scoreEl.getAttribute('title') || scoreEl.textContent.trim() : '',
+        permalink: permalink
       });
     });
     return comments;
@@ -138,6 +150,11 @@ function extractComments() {
     const authorEl = el.querySelector('[data-testid="comment_author_link"], a[href*="/user/"]');
     const bodyEl = el.querySelector('[data-testid="comment"] .RichTextJSON-root, p');
     const scoreEl = el.querySelector('[id*="vote-score"] span');
+    const permalinkEl = el.querySelector('a[href*="/comments/"][aria-label*="permalink"], a[href*="/comments/"]');
+    let permalink = '';
+    if (permalinkEl && permalinkEl.href && permalinkEl.href.includes('/comments/')) {
+      permalink = permalinkEl.href;
+    }
 
     let depthEl = el.parentElement;
     let depth = 0;
@@ -154,7 +171,8 @@ function extractComments() {
       depth,
       author: authorEl ? authorEl.textContent.trim().replace(/^u\//, '') : '[deleted]',
       body: bodyParts.join('\n') || (bodyEl ? bodyEl.textContent.trim() : '[deleted]'),
-      score: scoreEl ? scoreEl.textContent.trim() : ''
+      score: scoreEl ? scoreEl.textContent.trim() : '',
+      permalink: permalink
     });
   });
 

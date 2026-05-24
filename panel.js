@@ -176,7 +176,8 @@ function formatThreadForCopy(thread) {
     if (!c.body || c.body === '[deleted]') return;
     const indent = '  '.repeat(Math.min(c.depth, 5));
     const score = c.score ? ` [${c.score} pts]` : '';
-    text += `${indent}[u/${c.author}${score}]\n`;
+    const permalink = c.permalink ? ` ${c.permalink}` : '';
+    text += `${indent}[u/${c.author}${score}]${permalink}\n`;
     c.body.split('\n').forEach(line => { text += `${indent}${line}\n`; });
     text += '\n';
   });
